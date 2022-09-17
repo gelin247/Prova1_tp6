@@ -1,67 +1,69 @@
-const service = require('../service/subject.service')
+const service = require('../service/subject.service');
+
+const ValidMovie = (res, movie) => {
+    if (!movie.id) {
+        res.status(400).send('Id is mandatory')
+        return false;
+    }
+    if (!movie.title) {
+        res.status(400).send('Title is mandatory')
+        return false;
+    }
+    return true;
+}
 
 const create = (req, res) => {
-    const subject = req.body
-    if (isValidBody(res, subject)) {
-        service.create(subject)
-        res.status(201).send('Subject created successfully')
+    const subject = req.body;
+    if (res, subject) {
+        service.create(subject);
+        res.status(201).send('subject created successfully');
+    } else {
+        res.status(400).send('Invalid data');
     }
 }
+
+
 
 const getAll = (req, res) => {
-    res.status(200).send(service.getAll())
-}
-
-const getById = (req, res) => {
-    const subject = service.getById(req.params.id)
-    if (subject) {
-        res.status(200).send(subject)
-    } else {
-        res.status(404).send('Subject not found')
-    }
+    res.status(200).send(service.getAll());
 }
 
 const update = (req, res) => {
-    const subject = service.getById(req.params.id)
-    if (subject) {
-        if (isValidBody(res, subject)) {
-            service.update(req.params.id, req.body)
-            res.status(200).send('Subject updated successfully')
-        }
+    const data = req.body;
+    const id = req.params.id;
+    const updatemovie = service.getById(id);
+    if (ValidMovie(res, data) && updatemovie) {
+        service.updateMovie(id, data);
+        res.status(200).send('Movie updated successfully');
     } else {
-        res.status(404).send('Subject not found')
+        if (!updatemovie) {
+            res.status(404).send('Movie not found');
+        } else {
+            res.status(400).send('Invalid data');
+        }
     }
 }
+
+const getById = (req, res) => {
+    const id = req.params.id;
+    const subject = service.getById(id);
+    if (subject) {
+        res.status(200).send(subject);
+    } else {
+        res.status(404).send('subject not found');
+    }
+}
+
 
 const remove = (req, res) => {
-    const subject = service.getById(req.params.id)
-    if (subject) {
-        service.remove(req.params.id)
-        res.status(200).send('Subject removed successfully')
+    const id = req.params.id;
+    const movieToDelete = service.getById(id);
+    if (movieToDelete) {
+        service.remove(id);
+        res.status(204).send('Movie deleted successfully');
     } else {
-        res.status(404).send('Subject not found')
+        res.status(404).send('Movie not found');
     }
-}
-
-const isValidBody = (res, subject) => {
-    if (!subject.id) {
-        res.status(400).send('Id is mandatory')
-        return false
-    
-    } else if (!subject.name || subject.name.trim() === '') {
-        res.status(400).send('Name is mandatory')
-        return false
-    
-    } else if (!subject.workload) {
-        res.status(400).send('Workload is mandatory')
-        return false
-    
-    } else if (!subject.teacherName || subject.teacherName.trim() === '') {
-        res.status(400).send('TeacherName is mandatory')
-        return false
-    }
-
-    return true
 }
 
 module.exports = {
@@ -70,4 +72,4 @@ module.exports = {
     getById,
     update,
     remove
-}
+};
